@@ -1,17 +1,23 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/firestoreservice.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'taskscreen.dart';
+
 import 'task.dart';
 
-import 'dart:async';
+import 'appBar.dart';
 
-import 'newtask.dart';
 
-//import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 void main() => runApp(MyApp());
+
 
 
 class MyApp extends StatelessWidget {
@@ -27,11 +33,11 @@ class MyApp extends StatelessWidget {
 
       theme: ThemeData(
 
-             primaryColor: Color(0xff543B7A),
+        primaryColor: Color(0xff543B7A),
       
       ),
       
-      home: CreateToDo(),
+      home: MyHomePage(),
     
     );
   
@@ -41,24 +47,60 @@ class MyApp extends StatelessWidget {
 
 
 
-class CreateToDo extends StatefulWidget {
+
+
+class MyHomePage extends StatefulWidget {
 
   @override
-  _CreateToDoState createState() => _CreateToDoState();
+  _MyHomePageState createState() => _MyHomePageState();
 
 }
 
 
 
-class _CreateToDoState extends State<CreateToDo> {
+
+class _MyHomePageState extends State<MyHomePage> {
 
 
-  @override 
+  List<Task> items;
+
+  FirestoreService fireServ = new FirestoreService();
+
+  StreamSubscription<QuerySnapshot> todoTasks;
+
+
+  @override
   void initState(){
 
     super.initState();
 
+
+    //Here we'll asign the item to new list, here retrieving the data from Firestore
+    items = new List();
+
+
+    //---if todoTask condition
+    todoTasks?.cancel();
+    
+
+    todoTasks = fireServ.getTaskList().listen((QuerySnapshot snapshot){
+
+
+      final List<Task> tasks = snapshot.documents
+
+      .map((documentSnapshot) => Task. fromMap(documentSnapshot.data)).toList();
+
+
+      setState((){
+
+        this.items = tasks;
+
+      });
+
+    });
+  
   }
+
 
 
 
@@ -67,237 +109,287 @@ class _CreateToDoState extends State<CreateToDo> {
 
     return Scaffold(
 
-      //resizeToAvoidBottomInset: false,
-    
+      resizeToAvoidBottomInset: false,
+
       body: Column(
 
         children: <Widget>[
 
-          _myAppBar(context),
 
-          Center(
+          MyAppBar(),
 
-            child: Text("ToDo Task"),
+
+          Container(
+
+            width: MediaQuery.of(context).size.width,
+
+            height: MediaQuery.of(context).size.height - 80,
+
+
+            child: ListView.builder(
+
+
+              itemCount: items.length,
+
+
+              itemBuilder: (context, index){
+
+                return Stack(
+
+                  children:<Widget>[
+
+
+                    Column(
+                
+
+                      children: <Widget>[
+
+                        Padding(
+
+                          padding: EdgeInsets.only(left: 8.0, right: 8.0),
+
+                          child: Container(
+
+                            width: MediaQuery.of(context).size.width,
+
+                            height: 80.0,
+
+                            child: Padding(
+
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+
+                              child: Material(
+
+                                color: Colors.white,
+
+                                elevation: 14.0,
+
+                                shadowColor: Color(0x802196f3),
+
+                                child: Center(
+
+                                  child: Padding(
+
+                                    padding: EdgeInsets.all(8.0),
+
+                                    child: Row(
+
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                                      children: <Widget>[
+
+                                        todoType('${items[index].tasktype}'),
+
+                                        Text(
+
+                                          '${items[index].taskname}',
+
+                                          style: TextStyle(
+
+                                            color: Colors.black,
+
+                                            fontSize: 20.0,
+
+                                          ),
+
+                                        ),
+
+
+                                        Column(
+
+                                          mainAxisAlignment: MainAxisAlignment.center,
+
+                                          children: <Widget>[
+
+                                            Text(
+
+                                              '${items[index].taskdate}',
+                                              
+                                              style: TextStyle(
+                                              
+                                                color: Colors.black,
+                                              
+                                                fontSize: 18.0,
+                                              
+                                                fontWeight: FontWeight.bold
+                                                
+                                              ),
+
+                                            ),
+
+
+                                            Text(
+                                              
+                                              '${items[index].tasktime}',
+                                            
+                                              style: TextStyle(
+                                              
+                                                color: Colors.black,
+                                              
+                                                fontSize: 16.0
+                                                
+                                              ),
+
+                                            ),
+
+
+
+                                          ],
+
+                                        ),
+
+                                      ],
+
+                                    ),
+
+
+                                  ),
+
+                                ),
+
+                              ),
+
+                            ),
+
+                          ),
+
+                        ),
+                       
+                      ],
+
+                    ),
+
+                  ]
+
+                );
+
+              }
+
+            ),
 
           ),
-
-        ],
+        
+        ]
 
       ),
+
 
 
 
       floatingActionButton: FloatingActionButton(
 
-        backgroundColor: Color(0xfffa7397),
+        backgroundColor: Color(0xFFFA7397),
 
         child: Icon(
-          
+
           FontAwesomeIcons.listUl,
 
-          color: Color(0xfffdde42),
+          color: Color(0xFFFDDE42),
 
         ),
 
-        onPressed: (){
+        onPressed: () {
 
-          //Navigator.push(context, MaterialPageRoute(builder: (context) => TaskScreen()));
+          //Navigator.push(context,MaterialPageRoute(builder: (context) => TaskScreen()),
 
           Navigator.push(
+
+            context,
             
-            context, MaterialPageRoute(
-              
-              builder: (context) => NewTask(),
+            MaterialPageRoute(
 
+              builder: (context) => TaskScreen(Task('', '', '', '', '')),
+              
               fullscreenDialog: true
-              
-            )
-              
-              
-          );
+                
+            ),
 
+          );
 
         },
 
       ),
-
-
-    );
-
-  }
-
-
-  Widget _myAppBar(context){
-
-
-    return Container(
-
-
-      height: 80.0,
-
-      width: MediaQuery.of(context).size.width,
-
-
-      //---Decoration App Bar Begins---
-
-      decoration: BoxDecoration(
-
-
-        gradient: LinearGradient(
-
-
-          colors: [
-
-            const Color(0xFFFA7397),
-            
-            const Color(0xFFFDDE42),
-
-          ],
-
-
-          begin: FractionalOffset(0.0, 0.0),
-
-          end: FractionalOffset(1.0, 0.0),
-
-          stops: [0.0,1.0],
-
-          tileMode: TileMode.clamp
-
-
-        ),
-
-      ),
-
-      //---End of the Decoration App Bar---
-
-
-      
-
-      child: Padding(
-
-        padding: EdgeInsets.only(top: 16.0),
-
-        child: Center(
-
-          child: Row(
-
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
-            children: <Widget>[
-
-
-              //---Arrow Icon App Bar Begins---
-
-              Expanded(
-
-                flex: 1,
-
-                child: Container(
-
-                  child: IconButton(
-
-                    icon: Icon(
-
-                      FontAwesomeIcons.arrowLeft,
-
-                      color: Colors.white,
-
-                    ),
-
-
-                    onPressed: (){
-
-                      //
-
-                    },
-
-                  ),
-
-
-                ),
-
-              ),
-
-              //---End of the Arrow Icon App Bar---
-
-
-
-              //---Theme of App Bar Begins---
-
-              Expanded(
-
-                flex: 5,
-
-                child: Container(
-
-                  child: Text(
-
-                    'ToDo Tasks',
-
-                    style: TextStyle(
-
-                      color: Colors.white,
-
-                      fontWeight: FontWeight.bold,
-
-                      fontSize: 20.0
-                        
-                    ),
-
-                  ),
-
-                ),
-
-              ),
-
-              //---End of the Theme of App Bar---
-
-
-              //---Search Icon of App Bar Begins---
-
-              Expanded(
-
-                flex: 1,
-
-                child: Container(
-
-                  child: IconButton(
-
-                    icon: Icon(
-                      
-                      FontAwesomeIcons.search,
-
-                      color: Colors.white,
-
-                    ),
-
-                    onPressed: (){
-
-                      //
-
-                    },
-
-                  ),
-
-                ),
-
-              ),
-
-              //---End of the Search Icon of App Bar---
-
-            ],
-
-          ),
-
-        ),
-
-      ),
-
-
 
     );
 
   }
 
 }
+
+
+
+  Widget todoType(String icontype) {
+
+    IconData iconval;
+
+    Color colorval;
+
+
+    switch (icontype) {
+
+      case 'travel':
+
+        iconval = FontAwesomeIcons.mapMarkerAlt;
+
+        colorval = Color(0xff4158ba);
+
+        break;
+
+
+      case 'shopping':
+
+        iconval = FontAwesomeIcons.shoppingCart;
+
+        colorval = Color(0xfffb537f);
+
+        break;
+
+
+      case 'gym':
+
+        iconval = FontAwesomeIcons.dumbbell;
+
+        colorval = Color(0xff4caf50);
+
+        break;
+
+
+      case 'party':
+
+        iconval = FontAwesomeIcons.glassCheers;
+
+        colorval = Color(0xff9962d0);
+
+        break;
+
+
+      default:
+
+         iconval = FontAwesomeIcons.tasks;
+
+         colorval = Color(0xff0dc8f5);
+
+      //
+    }
+
+
+    return CircleAvatar(
+
+      backgroundColor: colorval,
+
+      child: Icon(
+        
+        iconval, 
+        
+        color: Colors.white, 
+        
+        size: 20.0
+        
+      ),
+
+
+    );
+  }
+
+
 

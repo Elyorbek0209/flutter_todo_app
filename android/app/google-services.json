@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "585063909381",
+    "firebase_url": "https://todolist1-3be74.firebaseio.com",
+    "project_id": "todolist1-3be74",
+    "storage_bucket": "todolist1-3be74.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:585063909381:android:2ba8c6e1412c03c8",
+        "android_client_info": {
+          "package_name": "emsa.flutter_todo_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "585063909381-16ef2gq95t86a7kv8r03d30co4jfvrqc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "APY_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "585063909381-16ef2gq95t86a7kv8r03d30co4jfvrqc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
